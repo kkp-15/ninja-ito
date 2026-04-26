@@ -447,6 +447,83 @@
   .app-link b { display: block; font-size: 0.95rem; color: var(--orange-dark); }
   .app-link small { display: block; font-size: 0.75rem; color: var(--muted); margin-top: 0.1rem; }
 
+  /* Result phase */
+  .result-status {
+    text-align: center;
+    font-size: 0.95rem;
+    color: var(--orange-dark);
+    font-weight: bold;
+    margin-bottom: 0.6rem;
+  }
+  .deal-card.flipped {
+    background: linear-gradient(135deg, #51cf66, #37b24d);
+    cursor: default;
+    color: white;
+  }
+  .deal-card.flipped.fail {
+    background: linear-gradient(135deg, #ff6b6b, #e03131);
+    animation: shake 0.4s;
+  }
+  .deal-card.flipped .num {
+    font-size: 1.6rem;
+    font-weight: 900;
+  }
+  .deal-card.flipped small {
+    font-size: 0.7rem;
+    opacity: 0.95;
+    display: block;
+    margin-top: 2px;
+  }
+  .deal-card .order-badge {
+    position: absolute;
+    top: 4px;
+    left: 4px;
+    background: white;
+    color: var(--orange-dark);
+    font-size: 0.7rem;
+    font-weight: 900;
+    border-radius: 50%;
+    width: 22px;
+    height: 22px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    box-shadow: 0 1px 3px rgba(0,0,0,0.2);
+  }
+  @keyframes shake {
+    0%,100%{transform:translateX(0);} 25%{transform:translateX(-6px);} 75%{transform:translateX(6px);}
+  }
+  .result-banner {
+    border-radius: 16px;
+    padding: 1.2rem 1rem;
+    text-align: center;
+    margin: 1rem 0 0.6rem;
+    font-weight: 900;
+    font-size: 1.4rem;
+    box-shadow: 0 6px 18px rgba(0,0,0,0.1);
+    animation: pop 0.4s;
+  }
+  .result-banner.success {
+    background: linear-gradient(135deg, #51cf66, #37b24d);
+    color: white;
+  }
+  .result-banner.fail {
+    background: linear-gradient(135deg, #ff6b6b, #e03131);
+    color: white;
+  }
+  .result-banner small {
+    display: block;
+    font-size: 0.85rem;
+    font-weight: bold;
+    opacity: 0.95;
+    margin-top: 0.3rem;
+  }
+  @keyframes pop {
+    0% {transform:scale(0.7);opacity:0;}
+    60% {transform:scale(1.05);}
+    100% {transform:scale(1);opacity:1;}
+  }
+
   /* Info */
   .info-section {
     max-width: 720px;
@@ -634,8 +711,10 @@
   <!-- STEP 5: 答え合わせ -->
   <section class="card hidden" id="step-result">
     <h2><span class="step-label">STEP 5</span>答え合わせ</h2>
-    <p style="text-align:center;margin-bottom:0.8rem;">小さい順に並べた数字の答えはこちら👇</p>
+    <p style="text-align:center;margin-bottom:0.4rem;">議論で決めた<strong>小さい順</strong>に、1枚ずつカードをタップ！</p>
+    <div class="result-status" id="resultStatus">最小だと思う人のカードからめくろう 👇</div>
     <div class="deal-grid" id="resultGrid"></div>
+    <div class="result-banner hidden" id="resultBanner"></div>
     <div class="end-cta">
       <p>🎉 楽しめましたか？<br><strong>本物の「ito（イト）」カードゲーム</strong>はもっとお題が豊富で盛り上がります！</p>
       <a class="ad-link" id="amazonLink" href="https://www.amazon.co.jp/s?k=ito+%E3%82%A4%E3%83%88+%E3%82%AB%E3%83%BC%E3%83%89%E3%82%B2%E3%83%BC%E3%83%A0&tag=kkp15-22" target="_blank" rel="nofollow sponsored noopener">🛒 Amazonでitoを見る</a>
@@ -1037,19 +1116,97 @@
     window.scrollTo({top:0, behavior:'smooth'});
   }
 
-  // ========== 結果 ==========
+  // ========== 結果（インタラクティブ答え合わせ） ==========
   function renderResult() {
+    STATE.flipOrder = 0;
+    STATE.flipMaxNum = 0;
+    STATE.flipFailed = false;
     const grid = $('resultGrid');
     grid.innerHTML = '';
-    // プレイヤー番号と数字をペアにし、数字昇順にソート
-    const pairs = STATE.numbers.map((n,i) => ({n, i})).sort((a,b)=>a.n-b.n);
-    pairs.forEach(p => {
+    $('resultBanner').classList.add('hidden');
+    $('resultBanner').className = 'result-banner hidden';
+    $('resultStatus').textContent = '最小だと思う人のカードからめくろう 👇';
+    for (let i=0;i<STATE.players;i++) {
       const card = document.createElement('div');
       card.className = 'deal-card';
-      card.style.background = 'linear-gradient(135deg, #ff8a3d, #ffd43b)';
-      card.style.cursor = 'default';
-      card.innerHTML = `<div class="label" style="font-size:1.3rem;">${p.n}<small>${p.i+1}人目</small></div>`;
+      card.dataset.idx = i;
+      card.innerHTML = `<div class="label">${i+1}人目<small>タップ</small></div>`;
+      card.addEventListener('click', () => flipResultCard(card, i));
       grid.appendChild(card);
+    }
+  }
+  function flipResultCard(card, i) {
+    if (card.classList.contains('flipped') || STATE.flipFailed) return;
+    const num = STATE.numbers[i];
+    STATE.flipOrder++;
+    const order = STATE.flipOrder;
+    const isFail = num < STATE.flipMaxNum;
+    card.classList.add('flipped');
+    card.innerHTML = `<div class="order-badge">${order}</div><div class="num">${num}</div><small>${i+1}人目</small>`;
+    if (isFail) {
+      card.classList.add('fail');
+      STATE.flipFailed = true;
+      showFinalBanner(false, num);
+    } else {
+      STATE.flipMaxNum = num;
+      if (STATE.flipOrder === STATE.players) {
+        showFinalBanner(true);
+      } else {
+        $('resultStatus').textContent = `${order}枚目OK！次に小さい数字の人のカードをタップ`;
+      }
+    }
+  }
+  function showFinalBanner(ok, lastNum) {
+    const banner = $('resultBanner');
+    banner.classList.remove('hidden');
+    if (ok) {
+      banner.className = 'result-banner success';
+      banner.innerHTML = `🎉 全員勝利！<small>全員のカードを小さい順に並べられました</small>`;
+      $('resultStatus').textContent = '完璧！';
+      try { playSuccess(); } catch(e){}
+    } else {
+      banner.className = 'result-banner fail';
+      banner.innerHTML = `💥 順番が逆！<small>${lastNum} は前のカードより小さい数字でした…残念！</small>`;
+      $('resultStatus').textContent = '失敗…残りのカードもめくって答えを確認しよう';
+      try { playFail(); } catch(e){}
+      // 失敗後も残りのカードはタップでめくれるようにする
+      setTimeout(() => {
+        STATE.flipFailed = false;
+        document.querySelectorAll('#resultGrid .deal-card:not(.flipped)').forEach(c => {
+          c.addEventListener('click', () => {
+            if (c.classList.contains('flipped')) return;
+            const idx = +c.dataset.idx;
+            c.classList.add('flipped');
+            c.innerHTML = `<div class="num">${STATE.numbers[idx]}</div><small>${idx+1}人目</small>`;
+          }, { once: true });
+        });
+      }, 800);
+    }
+  }
+  function playSuccess() {
+    const ctx = new (window.AudioContext||window.webkitAudioContext)();
+    [523,659,784,1046].forEach((f,i)=>{
+      const o=ctx.createOscillator(),g=ctx.createGain();
+      o.connect(g);g.connect(ctx.destination);
+      o.frequency.value=f;o.type='sine';
+      const t=ctx.currentTime+i*0.12;
+      g.gain.setValueAtTime(0.0001,t);
+      g.gain.exponentialRampToValueAtTime(0.3,t+0.02);
+      g.gain.exponentialRampToValueAtTime(0.0001,t+0.3);
+      o.start(t);o.stop(t+0.32);
+    });
+  }
+  function playFail() {
+    const ctx = new (window.AudioContext||window.webkitAudioContext)();
+    [400,300,200].forEach((f,i)=>{
+      const o=ctx.createOscillator(),g=ctx.createGain();
+      o.connect(g);g.connect(ctx.destination);
+      o.frequency.value=f;o.type='sawtooth';
+      const t=ctx.currentTime+i*0.15;
+      g.gain.setValueAtTime(0.0001,t);
+      g.gain.exponentialRampToValueAtTime(0.25,t+0.02);
+      g.gain.exponentialRampToValueAtTime(0.0001,t+0.4);
+      o.start(t);o.stop(t+0.42);
     });
   }
 
