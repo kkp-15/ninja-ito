@@ -421,6 +421,32 @@
 
   .hidden { display: none !important; }
 
+  /* Ad visibility during play */
+  body.playing .ad-slot,
+  body.playing .info-section { display: none; }
+
+  .app-links {
+    display: grid;
+    grid-template-columns: repeat(auto-fill, minmax(140px, 1fr));
+    gap: 0.7rem;
+    margin-top: 0.6rem;
+  }
+  .app-link {
+    background: #fff5e6;
+    border: 2px solid var(--border);
+    border-radius: 14px;
+    padding: 0.8rem 0.6rem;
+    text-align: center;
+    text-decoration: none;
+    color: var(--text);
+    transition: transform 0.1s, border-color 0.15s;
+    display: block;
+  }
+  .app-link:hover { transform: translateY(-2px); border-color: var(--orange); }
+  .app-link .emoji { font-size: 1.6rem; display: block; margin-bottom: 0.2rem; }
+  .app-link b { display: block; font-size: 0.95rem; color: var(--orange-dark); }
+  .app-link small { display: block; font-size: 0.75rem; color: var(--muted); margin-top: 0.1rem; }
+
   /* Info */
   .info-section {
     max-width: 720px;
@@ -618,6 +644,14 @@
     <div class="step-actions">
       <button class="btn-primary" id="newGame">🔄 もう1回遊ぶ</button>
       <button class="btn-ghost" id="resultBack">↺ 設定に戻る</button>
+    </div>
+
+    <h2 style="margin-top:1.6rem;">🎲 こんなアプリも遊んでみる？</h2>
+    <div class="app-links">
+      <a class="app-link" href="https://bingo.kkpwebninja.com" target="_blank" rel="noopener"><span class="emoji">🎱</span><b>ビンゴマシン</b><small>みんなで盛り上がる</small></a>
+      <a class="app-link" href="https://saikoro.kkpwebninja.com" target="_blank" rel="noopener"><span class="emoji">🎲</span><b>サイコロの術</b><small>飲み会・ゲームに</small></a>
+      <a class="app-link" href="https://omikuji.kkpwebninja.com" target="_blank" rel="noopener"><span class="emoji">🎴</span><b>おみくじ</b><small>運だめし</small></a>
+      <a class="app-link" href="https://kkpwebninja.com" target="_blank" rel="noopener"><span class="emoji">🥷</span><b>web忍者の砦</b><small>もっとアプリを見る</small></a>
     </div>
   </section>
 
@@ -987,6 +1021,7 @@
     ['setup','deal','discuss','result'].forEach(s => {
       $('step-'+s).classList.toggle('hidden', s !== name);
     });
+    document.body.classList.toggle('playing', name === 'deal' || name === 'discuss');
     if (name === 'discuss') {
       $('discTopicText').textContent = STATE.topic;
       resetTimer();
