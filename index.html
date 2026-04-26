@@ -993,7 +993,7 @@
     { name:'ティール', emoji:'🟢', bg:'linear-gradient(135deg,#20c997,#0ca678)', solid:'#0ca678' }
   ];
   function pColor(i){ return PLAYER_COLORS[i % PLAYER_COLORS.length]; }
-  function pLabel(i){ const c=pColor(i); return `${c.emoji} ${c.name}さん`; }
+  function pLabel(i){ const c=pColor(i); return `${i+1}人目 ${c.emoji}${c.name}`; }
 
   const STATE = {
     players: 4,
@@ -1074,8 +1074,7 @@
       const card = document.createElement('div');
       const c = pColor(i);
       card.className = 'deal-card' + (STATE.revealed[i] ? ' done' : '');
-      if (!STATE.revealed[i]) card.style.background = c.bg;
-      card.innerHTML = `<div class="label"><div style="font-size:1.6rem;line-height:1;">${c.emoji}</div>${c.name}<small>タップ</small></div>`;
+      card.innerHTML = `<div class="label"><div style="font-size:1.4rem;line-height:1;">${c.emoji}</div>${i+1}人目<small>${c.name}</small></div>`;
       card.addEventListener('click', () => {
         if (STATE.revealed[i]) { showToast('もう確認済みです'); return; }
         openReveal(i);
@@ -1149,8 +1148,7 @@
       const c = pColor(i);
       card.className = 'deal-card';
       card.dataset.idx = i;
-      card.style.background = c.bg;
-      card.innerHTML = `<div class="label"><div style="font-size:1.6rem;line-height:1;">${c.emoji}</div>${c.name}<small>タップ</small></div>`;
+      card.innerHTML = `<div class="label"><div style="font-size:1.4rem;line-height:1;">${c.emoji}</div>${i+1}人目<small>${c.name}</small></div>`;
       card.addEventListener('click', () => flipResultCard(card, i));
       grid.appendChild(card);
     }
@@ -1162,9 +1160,8 @@
     const order = STATE.flipOrder;
     const isFail = num < STATE.flipMaxNum;
     card.classList.add('flipped');
-    card.style.background = '';
     const c = pColor(i);
-    card.innerHTML = `<div class="order-badge">${order}</div><div class="num">${num}</div><small>${c.emoji}${c.name}</small>`;
+    card.innerHTML = `<div class="order-badge">${order}</div><div class="num">${num}</div><small>${i+1}人目 ${c.emoji}${c.name}</small>`;
     if (isFail) {
       card.classList.add('fail');
       STATE.flipFailed = true;
@@ -1199,9 +1196,8 @@
             if (c.classList.contains('flipped')) return;
             const idx = +c.dataset.idx;
             c.classList.add('flipped');
-            c.style.background = '';
             const col = pColor(idx);
-            c.innerHTML = `<div class="num">${STATE.numbers[idx]}</div><small>${col.emoji}${col.name}</small>`;
+            c.innerHTML = `<div class="num">${STATE.numbers[idx]}</div><small>${idx+1}人目 ${col.emoji}${col.name}</small>`;
           }, { once: true });
         });
       }, 800);
