@@ -1,0 +1,1101 @@
+<!DOCTYPE html>
+<html lang="ja">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>ito 数字配布ツール｜スマホ1台で遊べる無料ボードゲーム補助</title>
+<meta name="description" content="協力ボードゲーム「ito（イト）」をスマホ1台で遊ぶための無料ツール。1〜100の数字を人数分ランダム配布、お題150種以上、議論タイマー付き。カード版を持っていなくてもすぐ遊べます。">
+<meta name="theme-color" content="#ff8a3d">
+<link rel="canonical" href="https://ito.kkpwebninja.com/">
+<link rel="icon" href="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 100 100'%3E%3Ctext y='.9em' font-size='90'%3E🎴%3C/text%3E%3C/svg%3E">
+
+<meta property="og:title" content="ito 数字配布ツール｜スマホ1台で遊べる">
+<meta property="og:description" content="ボードゲーム「ito」をスマホ1台で遊ぶ無料ツール。お題150種以上、人数分の数字をランダム配布。">
+<meta property="og:type" content="website">
+<meta property="og:url" content="https://ito.kkpwebninja.com/">
+<meta property="og:site_name" content="ito 数字配布ツール">
+<meta name="twitter:card" content="summary_large_image">
+
+<script type="application/ld+json">
+{
+  "@context": "https://schema.org",
+  "@type": "WebApplication",
+  "name": "ito 数字配布ツール",
+  "url": "https://ito.kkpwebninja.com/",
+  "description": "ボードゲームitoをスマホ1台で遊ぶための無料Webアプリ。数字配布とお題出しを自動化。",
+  "applicationCategory": "GameApplication",
+  "operatingSystem": "Web",
+  "offers": {"@type":"Offer","price":"0","priceCurrency":"JPY"},
+  "author": {"@type":"Person","name":"こーきっぺ"}
+}
+</script>
+
+<!-- Google Analytics -->
+<script async src="https://www.googletagmanager.com/gtag/js?id=G-2LM85GJN0L"></script>
+<script>
+  window.dataLayer = window.dataLayer || [];
+  function gtag(){dataLayer.push(arguments);}
+  gtag('js', new Date());
+  gtag('config', 'G-2LM85GJN0L');
+</script>
+
+<!-- AdSense -->
+<script async src="https://pagead2.googlesyndication.com/pagead/js/adsbygoogle.js?client=ca-pub-1298304917726270" crossorigin="anonymous"></script>
+
+<style>
+  * { box-sizing: border-box; margin: 0; padding: 0; }
+  :root {
+    --orange: #ff8a3d;
+    --orange-dark: #e8701f;
+    --pink: #ff6b9d;
+    --yellow: #ffd43b;
+    --green: #51cf66;
+    --sky: #74c0fc;
+    --cream: #fff9ec;
+    --text: #2d3436;
+    --muted: #868e96;
+    --card: #ffffff;
+    --border: #ffe2cc;
+  }
+  body {
+    font-family: "Hiragino Maru Gothic ProN", "Yu Gothic", "Meiryo", sans-serif;
+    background: linear-gradient(135deg, #fff5e1 0%, #ffe2cc 50%, #ffd0a8 100%);
+    color: var(--text);
+    min-height: 100vh;
+    line-height: 1.6;
+  }
+  header {
+    text-align: center;
+    padding: 1.5rem 1rem 0.3rem;
+  }
+  header h1 {
+    font-size: clamp(1.4rem, 4vw, 2rem);
+    color: var(--orange-dark);
+    letter-spacing: 0.02em;
+  }
+  header p {
+    color: var(--muted);
+    font-size: 0.9rem;
+    margin-top: 0.3rem;
+  }
+  main {
+    max-width: 720px;
+    margin: 0 auto;
+    padding: 1rem;
+  }
+  .card {
+    background: var(--card);
+    border-radius: 24px;
+    padding: 1.5rem 1.2rem;
+    margin-bottom: 1.2rem;
+    border: 3px solid var(--border);
+    box-shadow: 0 8px 28px rgba(255,138,61,0.12);
+  }
+  .card h2 {
+    font-size: 1.1rem;
+    color: var(--orange-dark);
+    margin-bottom: 0.8rem;
+  }
+  button {
+    font-family: inherit;
+    border: none;
+    border-radius: 999px;
+    padding: 0.8rem 1.6rem;
+    font-size: 1rem;
+    font-weight: bold;
+    cursor: pointer;
+    transition: transform 0.1s, box-shadow 0.2s;
+  }
+  button:active { transform: translateY(2px); }
+  .btn-primary {
+    background: var(--orange);
+    color: white;
+    box-shadow: 0 4px 0 var(--orange-dark);
+  }
+  .btn-primary:hover { background: var(--orange-dark); }
+  .btn-secondary {
+    background: var(--yellow);
+    color: var(--text);
+    box-shadow: 0 4px 0 #e6b800;
+  }
+  .btn-ghost {
+    background: #f1f3f5;
+    color: var(--text);
+    box-shadow: 0 4px 0 #ced4da;
+  }
+  .btn-pink {
+    background: var(--pink);
+    color: white;
+    box-shadow: 0 4px 0 #d94d80;
+  }
+
+  /* Step 1: people count */
+  .num-stepper {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    gap: 1rem;
+    margin: 0.8rem 0;
+  }
+  .num-stepper button {
+    width: 48px;
+    height: 48px;
+    padding: 0;
+    border-radius: 50%;
+    font-size: 1.4rem;
+  }
+  .num-stepper .val {
+    font-size: 2.4rem;
+    font-weight: 900;
+    color: var(--orange-dark);
+    min-width: 3ch;
+    text-align: center;
+  }
+  .num-stepper .unit {
+    font-size: 1rem;
+    color: var(--muted);
+  }
+
+  /* Categories */
+  .cat-grid {
+    display: grid;
+    grid-template-columns: repeat(auto-fill, minmax(120px, 1fr));
+    gap: 0.6rem;
+    margin-bottom: 0.8rem;
+  }
+  .cat-btn {
+    background: #fff5e6;
+    border: 2px solid var(--border);
+    color: var(--text);
+    padding: 0.7rem 0.5rem;
+    border-radius: 14px;
+    font-size: 0.95rem;
+    cursor: pointer;
+    font-family: inherit;
+    font-weight: bold;
+    box-shadow: none;
+    transition: transform 0.1s, border-color 0.15s, background 0.15s;
+  }
+  .cat-btn.active {
+    background: var(--orange);
+    border-color: var(--orange-dark);
+    color: white;
+  }
+
+  /* Topic display */
+  .topic-box {
+    background: linear-gradient(135deg, #fff7e6, #ffe8d6);
+    border-radius: 16px;
+    padding: 1.4rem 1rem;
+    text-align: center;
+    border: 2px dashed var(--orange);
+    margin: 0.6rem 0 0.8rem;
+    min-height: 90px;
+    display: flex;
+    flex-direction: column;
+    justify-content: center;
+    gap: 0.4rem;
+  }
+  .topic-direction {
+    font-size: 0.8rem;
+    color: var(--muted);
+    font-weight: bold;
+  }
+  .topic-text {
+    font-size: 1.3rem;
+    font-weight: 900;
+    color: var(--orange-dark);
+    line-height: 1.4;
+  }
+  .topic-actions {
+    display: flex;
+    gap: 0.5rem;
+    justify-content: center;
+    flex-wrap: wrap;
+  }
+
+  .step-actions {
+    display: flex;
+    gap: 0.6rem;
+    justify-content: center;
+    flex-wrap: wrap;
+    margin-top: 0.8rem;
+  }
+
+  /* Distribution */
+  .deal-grid {
+    display: grid;
+    grid-template-columns: repeat(auto-fill, minmax(80px, 1fr));
+    gap: 0.6rem;
+    margin: 1rem 0;
+  }
+  .deal-card {
+    aspect-ratio: 3/4;
+    background: linear-gradient(135deg, #ff8a3d, #ff6b9d);
+    border-radius: 12px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    color: white;
+    font-weight: 900;
+    font-size: 1rem;
+    cursor: pointer;
+    user-select: none;
+    box-shadow: 0 4px 12px rgba(255,107,157,0.3);
+    border: 3px solid white;
+    transition: transform 0.15s;
+    position: relative;
+  }
+  .deal-card:active { transform: scale(0.96); }
+  .deal-card.done {
+    background: linear-gradient(135deg, #ced4da, #adb5bd);
+    cursor: not-allowed;
+    box-shadow: none;
+  }
+  .deal-card.done::after {
+    content: '✓';
+    position: absolute;
+    font-size: 2rem;
+    color: white;
+  }
+  .deal-card.done .label { display: none; }
+  .deal-card .label {
+    text-align: center;
+    line-height: 1.2;
+    font-size: 0.85rem;
+  }
+  .deal-card .label small {
+    display: block;
+    font-size: 0.7rem;
+    opacity: 0.9;
+    margin-top: 2px;
+  }
+
+  /* Reveal overlay */
+  .reveal-overlay {
+    position: fixed;
+    inset: 0;
+    background: linear-gradient(135deg, #1a0033, #4d1a66);
+    z-index: 1000;
+    display: none;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+    padding: 1.5rem;
+    text-align: center;
+  }
+  .reveal-overlay.show { display: flex; }
+  .reveal-overlay .who {
+    color: #ffd43b;
+    font-size: 1.2rem;
+    font-weight: bold;
+    margin-bottom: 1rem;
+  }
+  .reveal-overlay .number {
+    font-size: clamp(7rem, 30vw, 14rem);
+    font-weight: 900;
+    color: white;
+    text-shadow: 0 0 30px rgba(255,212,59,0.7), 0 6px 0 rgba(0,0,0,0.4);
+    line-height: 1;
+    margin: 1rem 0;
+    font-variant-numeric: tabular-nums;
+  }
+  .reveal-overlay .topic-mini {
+    color: #ffd0a8;
+    font-size: 0.95rem;
+    margin-bottom: 0.4rem;
+    max-width: 90%;
+  }
+  .reveal-overlay .topic-mini b {
+    color: white;
+    font-size: 1.05rem;
+  }
+  .reveal-overlay .warn {
+    color: #ffd0a8;
+    font-size: 0.85rem;
+    margin: 0.5rem 0 1.5rem;
+  }
+  .reveal-overlay .close-btn {
+    background: white;
+    color: #4d1a66;
+    padding: 1rem 2.5rem;
+    font-size: 1.1rem;
+    border-radius: 999px;
+    cursor: pointer;
+    font-weight: 900;
+    border: none;
+    box-shadow: 0 6px 0 rgba(0,0,0,0.3);
+    font-family: inherit;
+  }
+  /* Pre-reveal screen */
+  .reveal-pre {
+    color: white;
+  }
+  .reveal-pre .ask {
+    font-size: 1.4rem;
+    font-weight: 900;
+    margin-bottom: 0.5rem;
+  }
+  .reveal-pre .name {
+    font-size: 2rem;
+    color: #ffd43b;
+    font-weight: 900;
+    margin-bottom: 1.5rem;
+  }
+  .reveal-pre .tap {
+    font-size: 1rem;
+    color: #ffd0a8;
+    margin-top: 1rem;
+  }
+  .reveal-pre .tap-btn {
+    background: var(--orange);
+    color: white;
+    padding: 1.2rem 2.4rem;
+    font-size: 1.2rem;
+    border-radius: 999px;
+    border: none;
+    font-weight: 900;
+    cursor: pointer;
+    box-shadow: 0 6px 0 var(--orange-dark);
+    font-family: inherit;
+    margin-top: 0.5rem;
+  }
+
+  /* Timer */
+  .timer-display {
+    text-align: center;
+    font-size: clamp(3rem, 12vw, 5rem);
+    font-weight: 900;
+    color: var(--orange-dark);
+    font-variant-numeric: tabular-nums;
+    line-height: 1;
+    text-shadow: 2px 2px 0 #fff, 4px 4px 0 rgba(255,138,61,0.2);
+    margin: 0.4rem 0;
+  }
+  .timer-presets {
+    display: flex;
+    gap: 0.4rem;
+    justify-content: center;
+    flex-wrap: wrap;
+    margin: 0.6rem 0;
+  }
+  .timer-presets button {
+    padding: 0.4rem 0.9rem;
+    font-size: 0.85rem;
+    border-radius: 999px;
+    background: #fff5e6;
+    color: var(--text);
+    border: 2px solid var(--border);
+    box-shadow: none;
+  }
+  .timer-presets button.active {
+    background: var(--orange);
+    color: white;
+    border-color: var(--orange-dark);
+  }
+  .timer-controls {
+    display: flex;
+    gap: 0.5rem;
+    justify-content: center;
+    flex-wrap: wrap;
+  }
+
+  /* End screen */
+  .end-cta {
+    background: linear-gradient(135deg, #fff7e6, #ffe2cc);
+    border-radius: 16px;
+    padding: 1.2rem;
+    margin: 1rem 0;
+    text-align: center;
+    border: 2px solid var(--border);
+  }
+  .end-cta p { font-size: 0.95rem; margin-bottom: 0.7rem; }
+  .end-cta .ad-link {
+    display: inline-block;
+    color: var(--orange-dark);
+    font-weight: bold;
+    text-decoration: underline;
+    text-decoration-color: rgba(232,112,31,0.4);
+    text-underline-offset: 3px;
+  }
+
+  .hidden { display: none !important; }
+
+  /* Info */
+  .info-section {
+    max-width: 720px;
+    margin: 1.5rem auto 0;
+    padding: 0 1rem;
+  }
+  .ad-slot {
+    max-width: 720px;
+    margin: 1.5rem auto;
+    padding: 0 1rem;
+    min-height: 100px;
+  }
+  .ad-slot ins { display: block; }
+  .info-h {
+    text-align: center;
+    color: var(--orange-dark);
+    font-size: 1.2rem;
+    margin-bottom: 1rem;
+  }
+  .info-card {
+    background: var(--card);
+    border-radius: 16px;
+    margin-bottom: 0.7rem;
+    border: 2px solid var(--border);
+    overflow: hidden;
+  }
+  .info-card summary {
+    cursor: pointer;
+    padding: 1rem 1.2rem;
+    font-weight: bold;
+    color: var(--orange-dark);
+    list-style: none;
+    position: relative;
+    user-select: none;
+  }
+  .info-card summary::-webkit-details-marker { display: none; }
+  .info-card summary::after {
+    content: '＋';
+    position: absolute;
+    right: 1.2rem;
+    top: 50%;
+    transform: translateY(-50%);
+    color: var(--orange);
+    font-weight: 900;
+  }
+  .info-card[open] summary::after { content: '−'; }
+  .info-card[open] summary { border-bottom: 1px solid var(--border); }
+  .info-body {
+    padding: 1rem 1.2rem 1.2rem;
+    line-height: 1.8;
+    font-size: 0.92rem;
+  }
+  .info-body p { margin-bottom: 0.7rem; }
+  .info-body ul, .info-body ol { padding-left: 1.4rem; margin: 0.4rem 0; }
+  .info-body li { margin-bottom: 0.4rem; }
+  .info-body a { color: var(--orange-dark); }
+
+  footer {
+    text-align: center;
+    padding: 32px 16px 40px;
+    font-size: 12px;
+    color: #555;
+    border-top: 1px solid #e0e5e8;
+    margin-top: 24px;
+    background: #fafcfc;
+  }
+  footer p { margin: 6px 0; line-height: 1.7; }
+  footer a {
+    color: #2e5c9a;
+    text-decoration: underline;
+    text-decoration-color: rgba(46, 92, 154, 0.4);
+    text-decoration-style: dotted;
+    text-underline-offset: 3px;
+    font-weight: 600;
+  }
+  footer a:hover { color: #1a3c6c; }
+
+  .toast {
+    position: fixed;
+    bottom: 20px;
+    left: 50%;
+    transform: translateX(-50%);
+    background: var(--text);
+    color: white;
+    padding: 0.7rem 1.4rem;
+    border-radius: 999px;
+    font-size: 0.9rem;
+    opacity: 0;
+    pointer-events: none;
+    transition: opacity 0.3s;
+    z-index: 100;
+  }
+  .toast.show { opacity: 1; }
+
+  .step-label {
+    display: inline-block;
+    background: var(--orange);
+    color: white;
+    border-radius: 999px;
+    font-size: 0.75rem;
+    padding: 0.15rem 0.7rem;
+    margin-right: 0.4rem;
+    vertical-align: middle;
+  }
+</style>
+</head>
+<body>
+
+<header>
+  <h1>🎴 ito 数字配布ツール</h1>
+  <p>スマホ1台でボードゲームitoが遊べる無料ツール</p>
+</header>
+
+<main>
+
+  <!-- STEP 1: 人数 -->
+  <section class="card" id="step-setup">
+    <h2><span class="step-label">STEP 1</span>人数を選ぶ</h2>
+    <div class="num-stepper">
+      <button class="btn-ghost" id="dec">−</button>
+      <span class="val" id="playerCount">4</span>
+      <span class="unit">人</span>
+      <button class="btn-ghost" id="inc">＋</button>
+    </div>
+    <p style="text-align:center;font-size:0.85rem;color:var(--muted);">2〜10人で遊べます</p>
+
+    <h2 style="margin-top:1.4rem;"><span class="step-label">STEP 2</span>お題のカテゴリ</h2>
+    <div class="cat-grid" id="catGrid"></div>
+
+    <div class="topic-box">
+      <span class="topic-direction" id="topicDir">⬆️ 大きい / ⬇️ 小さい</span>
+      <div class="topic-text" id="topicText">ボタンを押してお題を引いてください</div>
+    </div>
+    <div class="topic-actions">
+      <button class="btn-secondary" id="rollTopic">🎲 お題を引く</button>
+      <button class="btn-ghost" id="rerollTopic" style="display:none;">↻ 引き直し</button>
+    </div>
+
+    <div class="step-actions" style="margin-top:1.2rem;">
+      <button class="btn-primary" id="startGame">▶ 数字を配る</button>
+    </div>
+  </section>
+
+  <!-- STEP 3: 数字配布 -->
+  <section class="card hidden" id="step-deal">
+    <h2><span class="step-label">STEP 3</span>順番にタップして自分の数字を確認</h2>
+    <div class="topic-box">
+      <span class="topic-direction" id="dealTopicDir"></span>
+      <div class="topic-text" id="dealTopicText"></div>
+    </div>
+    <p style="text-align:center;font-size:0.9rem;color:var(--muted);">他の人に画面を見られないように注意！</p>
+    <div class="deal-grid" id="dealGrid"></div>
+    <div class="step-actions">
+      <button class="btn-pink hidden" id="toDiscuss">💬 全員確認した → 議論へ</button>
+      <button class="btn-ghost" id="backToSetup">↺ 設定に戻る</button>
+    </div>
+  </section>
+
+  <!-- STEP 4: 議論タイマー -->
+  <section class="card hidden" id="step-discuss">
+    <h2><span class="step-label">STEP 4</span>議論タイム</h2>
+    <div class="topic-box">
+      <span class="topic-direction" id="discTopicDir"></span>
+      <div class="topic-text" id="discTopicText"></div>
+    </div>
+    <p style="text-align:center;font-size:0.9rem;">数字を直接言わず、お題に沿った言葉で表現しよう。<br>小さい順に並んだら順に発表！</p>
+
+    <div class="timer-display" id="timerDisplay">03:00</div>
+    <div class="timer-presets" id="timerPresets">
+      <button data-sec="60">1分</button>
+      <button data-sec="180" class="active">3分</button>
+      <button data-sec="300">5分</button>
+      <button data-sec="600">10分</button>
+    </div>
+    <div class="timer-controls">
+      <button class="btn-primary" id="timerStart">スタート</button>
+      <button class="btn-secondary hidden" id="timerPause">一時停止</button>
+      <button class="btn-ghost" id="timerReset">↺</button>
+    </div>
+
+    <div class="step-actions" style="margin-top:1.2rem;">
+      <button class="btn-pink" id="toResult">✅ 答え合わせへ</button>
+    </div>
+  </section>
+
+  <!-- STEP 5: 答え合わせ -->
+  <section class="card hidden" id="step-result">
+    <h2><span class="step-label">STEP 5</span>答え合わせ</h2>
+    <p style="text-align:center;margin-bottom:0.8rem;">小さい順に並べた数字の答えはこちら👇</p>
+    <div class="deal-grid" id="resultGrid"></div>
+    <div class="end-cta">
+      <p>🎉 楽しめましたか？<br><strong>本物の「ito（イト）」カードゲーム</strong>はもっとお題が豊富で盛り上がります！</p>
+      <a class="ad-link" id="amazonLink" href="https://www.amazon.co.jp/s?k=ito+%E3%82%A4%E3%83%88+%E3%82%AB%E3%83%BC%E3%83%89%E3%82%B2%E3%83%BC%E3%83%A0&tag=kkp15-22" target="_blank" rel="nofollow sponsored noopener">🛒 Amazonでitoを見る</a>
+    </div>
+    <div class="step-actions">
+      <button class="btn-primary" id="newGame">🔄 もう1回遊ぶ</button>
+      <button class="btn-ghost" id="resultBack">↺ 設定に戻る</button>
+    </div>
+  </section>
+
+</main>
+
+<!-- Reveal overlay -->
+<div class="reveal-overlay" id="revealOverlay">
+  <div id="revealPre" class="reveal-pre">
+    <div class="ask">プレイヤー</div>
+    <div class="name" id="revealName">1人目</div>
+    <div class="topic-mini">お題：<b id="revealTopic"></b></div>
+    <button class="tap-btn" id="revealTapBtn">👆 タップして数字を見る</button>
+    <div class="tap">他の人に見られないようにね</div>
+  </div>
+  <div id="revealMain" class="hidden">
+    <div class="who" id="revealWho"></div>
+    <div class="number" id="revealNumber">??</div>
+    <div class="topic-mini">お題：<b id="revealTopic2"></b></div>
+    <div class="warn">⚠️ 数字は誰にも教えないでね</div>
+    <button class="close-btn" id="revealClose">閉じて次の人へ</button>
+  </div>
+</div>
+
+<!-- AdSense ① -->
+<div class="ad-slot">
+  <ins class="adsbygoogle"
+       style="display:block"
+       data-ad-client="ca-pub-1298304917726270"
+       data-ad-slot="2937937957"
+       data-ad-format="auto"
+       data-full-width-responsive="true"></ins>
+  <script>(adsbygoogle = window.adsbygoogle || []).push({});</script>
+</div>
+
+<section class="info-section">
+  <h2 class="info-h">「ito」ってどんなゲーム？</h2>
+
+  <details class="info-card" open>
+    <summary>itoの基本ルール</summary>
+    <div class="info-body">
+      <p>「ito（イト）」はアークライト社が販売している協力型のパーティーカードゲーム。プレイヤーは1〜100の数字カードを1枚ずつ受け取り、自分の数字を直接言わずに「お題」に沿った表現で伝え合い、全員で<strong>小さい順に並べる</strong>ことを目指します。</p>
+      <ul>
+        <li>例：お題「動物の大きさ」 / 自分の数字「85」 → 「ゾウ」と表現</li>
+        <li>順番通りに出せれば全員勝利、順序がズレたらそこでゲーム終了</li>
+        <li>2〜10人で遊べる協力ゲーム。みんなでワイワイ盛り上がる！</li>
+      </ul>
+    </div>
+  </details>
+
+  <details class="info-card">
+    <summary>このツールの使い方</summary>
+    <div class="info-body">
+      <ol>
+        <li><strong>人数を選ぶ</strong>（2〜10人）</li>
+        <li><strong>カテゴリを選んでお題を引く</strong>（気に入らなければ引き直しOK）</li>
+        <li><strong>「数字を配る」を押す</strong>と人数分のカードが並びます</li>
+        <li>1人ずつ自分のカードをタップ → 全画面で数字を確認 → 「閉じる」で消去 → 次の人へ</li>
+        <li>全員確認したら<strong>議論タイム</strong>。お題に沿った表現で会話して順番を決める</li>
+        <li>並び順が決まったら「答え合わせ」で結果発表！</li>
+      </ol>
+      <p>※ サーバーは使っていません。すべてスマホ内で完結します。</p>
+    </div>
+  </details>
+
+  <details class="info-card">
+    <summary>こんな時におすすめ</summary>
+    <div class="info-body">
+      <ul>
+        <li>飲み会・女子会・男子会の盛り上げに</li>
+        <li>カップルや家族のおうち時間に</li>
+        <li>合コン・初対面の集まりのアイスブレイクに</li>
+        <li>子供向けカテゴリで小学生のパーティーにも</li>
+        <li>カード版を持ってないけど今すぐ遊びたい時</li>
+      </ul>
+    </div>
+  </details>
+
+  <details class="info-card">
+    <summary>盛り上がるコツ</summary>
+    <div class="info-body">
+      <ul>
+        <li><strong>抽象的な表現を許容する</strong> — 細かい数字を言うのは禁止だが、感覚的な表現は自由</li>
+        <li><strong>会話のキャッチボールが大事</strong> — 一方的に主張せず、他の人の表現も受け止めよう</li>
+        <li><strong>順番を変えてもOK</strong> — 議論中は何度でも入れ替え可能</li>
+        <li><strong>負けても楽しむ</strong> — 「そんな数字だったの！？」のリアクションが醍醐味</li>
+      </ul>
+    </div>
+  </details>
+
+  <details class="info-card">
+    <summary>本物のitoカードゲームについて</summary>
+    <div class="info-body">
+      <p>このツールは「ito」を持っていない人向けの<strong>非公式の補助ツール</strong>です。本家のカードゲーム版にはもっと多彩なお題カードと、上級者向けルール（クモノイト・アカイイト）が収録されています。</p>
+      <p>気に入った方はぜひ本物のカードゲーム版もチェックしてみてください👇</p>
+      <p><a href="https://www.amazon.co.jp/s?k=ito+%E3%82%A4%E3%83%88+%E3%82%AB%E3%83%BC%E3%83%89%E3%82%B2%E3%83%BC%E3%83%A0&tag=kkp15-22" target="_blank" rel="nofollow sponsored noopener">🛒 Amazonで「ito」を探す</a></p>
+    </div>
+  </details>
+
+  <details class="info-card">
+    <summary>よくある質問</summary>
+    <div class="info-body">
+      <p><strong>Q. 完全無料ですか？</strong><br>A. はい、無料・登録不要・インストール不要です。</p>
+      <p><strong>Q. 遊んだ数字は他人に見られませんか？</strong><br>A. 数字は全画面で表示され、「閉じる」を押すと完全に画面から消えます。覗き見にだけ注意してください。</p>
+      <p><strong>Q. 何人まで遊べますか？</strong><br>A. 2〜10人に対応しています。</p>
+      <p><strong>Q. 公式の「ito」とは関係ありますか？</strong><br>A. 関係ない非公式の補助ツールです。本家のお題と一致するとは限りません。</p>
+    </div>
+  </details>
+
+  <details class="info-card">
+    <summary>関連サイト</summary>
+    <div class="info-body">
+      <ul>
+        <li><a href="https://kkpwebninja.com" target="_blank" rel="noopener">web忍者の砦</a> — 便利なWebアプリ集</li>
+        <li><a href="https://pomodoro.kkpwebninja.com" target="_blank" rel="noopener">ポモドーロタイマー</a> — 集中作業に</li>
+      </ul>
+    </div>
+  </details>
+</section>
+
+<!-- AdSense ② -->
+<div class="ad-slot">
+  <ins class="adsbygoogle"
+       style="display:block"
+       data-ad-client="ca-pub-1298304917726270"
+       data-ad-slot="2937937957"
+       data-ad-format="auto"
+       data-full-width-responsive="true"></ins>
+  <script>(adsbygoogle = window.adsbygoogle || []).push({});</script>
+</div>
+
+<footer>
+  <p>&copy; 2026 <a href="https://kkpwebninja.com">web忍者の砦</a></p>
+  <p><a href="https://privacypolicy.kkpwebninja.com">プライバシーポリシー</a></p>
+  <p style="font-size:11px;color:#888;">※「ito」「イト」はアークライト社の登録商標です。当サイトは非公式のファンツールです。</p>
+</footer>
+
+<div id="toast" class="toast"></div>
+
+<script>
+  // ========== お題リスト ==========
+  // 各お題は { t: 表現テーマ, dir: '大きい順=高数字 / 小さい順=低数字' のヒント表記 }
+  // dir省略時はデフォルトの「⬆️ 大きい / ⬇️ 小さい」
+  const TOPICS = {
+    teiban: {
+      label: '🦁 定番',
+      list: [
+        '動物の大きさ', '動物の強さ', '動物の足の速さ', '動物の人気', '動物の可愛さ',
+        '果物の甘さ', '野菜の人気', '魚の美味しさ', '料理の辛さ', '料理のカロリー',
+        '世界の国の面積', '都道府県の人口', '建物の高さ', '山の標高', '海の深さ',
+        '物の重さ', '物の硬さ', '色の暖かさ', '音の大きさ', '光の明るさ',
+        '乗り物の速さ', '乗り物の値段', 'スポーツの激しさ', 'スポーツの人気', 'スポーツ選手の年収',
+        '花の美しさ', '木の高さ', '虫の気持ち悪さ', '恐竜の強さ', '神話の神の偉さ',
+        '楽器の音の大きさ', '映画の興行収入', '本の長さ', '芸能人の知名度', '歴史上の人物の偉さ'
+      ]
+    },
+    nomikai: {
+      label: '🍻 飲み会',
+      list: [
+        '酔いやすいお酒の度合い', '飲み会の盛り上げ役度', '二日酔いのつらさ',
+        'おつまみの旨さ', 'お酒の値段', '居酒屋メニューの人気',
+        '上司に言われて嬉しい一言', '上司にされて嫌なこと', '社会人の常識度',
+        '理想の上司', 'モテるしぐさ', 'デートで盛り上がる場所',
+        '恋愛で大事なこと', '結婚相手に求める条件', '一発芸の難易度',
+        'カラオケの定番ソング', '盛り上がる飲みゲーム', '幹事の苦労',
+        '残業の辛さ', '月曜日のだるさ', '金曜日の解放感',
+        '会社をサボりたくなる日', '転職で重視すること', '飲み会で言われて嫌な一言',
+        '酔っ払いがやりがちな失敗', 'ハイボールの旨さ', '日本酒の強さ',
+        '次の日に残るお酒', '締めのラーメンの誘惑', '飲み放題のコスパ',
+        '居酒屋チェーンの人気', '宅飲みの楽さ', '会社の飲み会の楽しさ',
+        '一気飲みの危険度', '酔ったテンションの高さ'
+      ]
+    },
+    couple: {
+      label: '💕 カップル',
+      list: [
+        '理想のデート場所', '彼氏/彼女に言われて嬉しい言葉', 'プレゼントで嬉しいもの',
+        'やられたら冷める行動', 'やられたらキュンとする仕草', '一緒に行きたい旅行先',
+        'カップルの記念日の重要度', '結婚式で重視したいこと', 'プロポーズの理想シチュエーション',
+        '彼氏に求める優しさ', '彼女に求める女子力', '同棲で気をつけたいこと',
+        '別れる原因になりやすいこと', 'ケンカの仲直り方法', 'デートで行きたい映画ジャンル',
+        '愛情表現として嬉しいこと', 'ペアルックの恥ずかしさ', '結婚指輪の理想予算',
+        'お互いの呼び方', '一緒に観たいドラマ', '記念日に行きたいレストラン',
+        '異性として惹かれるポイント', '長続きするカップルの秘訣', '遠距離恋愛の難しさ',
+        '結婚願望の強さ', '理想の家族像', '同棲のタイミング',
+        '相手の親に会う緊張度', '初デートの理想', '告白されたい言葉',
+        'バレンタインの理想プレゼント', 'クリスマスデートの理想', 'カップルあるある',
+        'やきもちの可愛さ', '愛してる度ランキング'
+      ]
+    },
+    kids: {
+      label: '🧒 子供向け',
+      list: [
+        '好きな給食メニュー', '楽しい遊び', '苦手な野菜',
+        '夏休みの楽しみ', '冬休みの楽しみ', '誕生日プレゼントで欲しいもの',
+        'お小遣いで買いたいもの', 'なりたい職業', '得意な教科',
+        '運動会で人気の種目', '修学旅行で行きたい場所', '遠足のおやつの定番',
+        '人気のキャラクター', 'かっこいいヒーロー', '可愛い動物',
+        '怖いもの', '楽しいテーマパーク', '好きなお菓子',
+        '美味しいアイス', 'ジュースの甘さ', '人気のゲーム',
+        'YouTubeでよく見る動画', '好きなスポーツ', '習い事の人気',
+        'お誕生日会の楽しさ', 'プールで楽しいこと', '海で楽しいこと',
+        '雪で遊ぶ楽しさ', 'クリスマスの楽しみ', 'お正月の楽しみ',
+        '苦手な虫', '好きな乗り物', '行きたい外国',
+        '楽しい絵本', '人気のおもちゃ'
+      ]
+    },
+    money: {
+      label: '💰 お金系',
+      list: [
+        '欲しい年収', '理想の貯金額', '家賃にかけてもいい金額',
+        '一回の食事に出せる金額', '服にかけるお金', '靴の最高値',
+        '時計の値段', 'スマホ代に出せる月額', 'サブスクの月額合計',
+        '車の理想の値段', '結婚式にかけるお金', '新婚旅行の予算',
+        '家のローン額', '欲しい家の広さ', '美容にかける月額',
+        '習い事の月額', '飲み会1回の予算', 'コンビニで使う1日の金額',
+        '推し活にかける月額', '株の元手', 'ふるさと納税の年額',
+        'お年玉の理想額', 'お小遣いの月額', 'ボーナスの理想額',
+        '退職金の理想額', '老後に必要なお金', '節約の難しさ',
+        '無駄遣いしがちなジャンル', '宝くじで欲しい金額', '緊急時の備え金額',
+        '副業で欲しい月収', 'FIREの目標額', '結婚式のご祝儀',
+        'お葬式の香典', 'お年玉の上限'
+      ]
+    },
+    jiji: {
+      label: '📺 時事・カルチャー',
+      list: [
+        '人気のYouTuber', '今バズってるアプリ', 'SNSでフォロワー多そうな人',
+        '最近話題のドラマ', '行列ができるラーメン店', 'ヒットしたコンビニスイーツ',
+        '流行語の認知度', '人気のスマホ機種', '便利な家電',
+        '注目のAIサービス', '話題のサブスク', 'バズったMV',
+        '盛り上がるeスポーツ', 'ニュースで話題の事件', '注目の新作映画',
+        '配信ドラマの人気', 'ヒットアニメ', '推しキャラの人気',
+        '注目のアイドル', '紅白に出そうな歌手', 'バズった食べ物',
+        '注目のスポーツ選手', 'オリンピック競技の人気', 'ワールドカップの注目度',
+        '最近のお笑い芸人の人気', 'YouTubeのバズ動画', 'インスタ映えスポット',
+        'TikTokで流行った曲', 'X（旧Twitter）でトレンド入り', '推し活アイテムの値段',
+        '海外で人気の日本コンテンツ', 'インバウンドで人気の観光地', '話題の新店オープン',
+        'コラボカフェの人気', '限定グッズの転売価格', '炎上しやすい話題'
+      ]
+    }
+  };
+
+  // ========== State ==========
+  const STATE = {
+    players: 4,
+    category: 'teiban',
+    topic: '',
+    numbers: [],
+    revealed: [],
+    currentReveal: -1,
+    timerSec: 180,
+    timerRemaining: 180,
+    timerInterval: null,
+    timerRunning: false,
+  };
+  const $ = id => document.getElementById(id);
+
+  function showToast(msg) {
+    const t = $('toast');
+    t.textContent = msg;
+    t.classList.add('show');
+    setTimeout(() => t.classList.remove('show'), 1800);
+  }
+
+  // ========== カテゴリ初期化 ==========
+  function renderCategories() {
+    const grid = $('catGrid');
+    grid.innerHTML = '';
+    Object.entries(TOPICS).forEach(([key, v]) => {
+      const btn = document.createElement('button');
+      btn.className = 'cat-btn' + (key === STATE.category ? ' active' : '');
+      btn.textContent = v.label;
+      btn.dataset.cat = key;
+      btn.addEventListener('click', () => {
+        STATE.category = key;
+        document.querySelectorAll('.cat-btn').forEach(b => b.classList.toggle('active', b.dataset.cat === key));
+      });
+      grid.appendChild(btn);
+    });
+  }
+
+  // ========== お題引き ==========
+  function rollTopic() {
+    const list = TOPICS[STATE.category].list;
+    let pick;
+    do { pick = list[Math.floor(Math.random()*list.length)]; } while (pick === STATE.topic && list.length > 1);
+    STATE.topic = pick;
+    $('topicText').textContent = pick;
+    $('rerollTopic').style.display = '';
+    $('rollTopic').textContent = '🎲 別のお題を引く';
+  }
+
+  // ========== 人数 ==========
+  function setPlayers(n) {
+    STATE.players = Math.max(2, Math.min(10, n));
+    $('playerCount').textContent = STATE.players;
+  }
+
+  // ========== ゲーム開始 ==========
+  function startGame() {
+    if (!STATE.topic) { rollTopic(); }
+    // 1〜100からN個ランダム
+    const pool = [];
+    for (let i=1;i<=100;i++) pool.push(i);
+    for (let i=pool.length-1;i>0;i--) {
+      const j = Math.floor(Math.random()*(i+1));
+      [pool[i],pool[j]] = [pool[j],pool[i]];
+    }
+    STATE.numbers = pool.slice(0, STATE.players);
+    STATE.revealed = new Array(STATE.players).fill(false);
+
+    $('dealTopicText').textContent = STATE.topic;
+    renderDealGrid();
+    showStep('deal');
+  }
+
+  function renderDealGrid() {
+    const grid = $('dealGrid');
+    grid.innerHTML = '';
+    for (let i=0;i<STATE.players;i++) {
+      const card = document.createElement('div');
+      card.className = 'deal-card' + (STATE.revealed[i] ? ' done' : '');
+      card.innerHTML = `<div class="label">${i+1}人目<small>タップ</small></div>`;
+      card.addEventListener('click', () => {
+        if (STATE.revealed[i]) { showToast('もう確認済みです'); return; }
+        openReveal(i);
+      });
+      grid.appendChild(card);
+    }
+    updateToDiscussBtn();
+  }
+
+  function updateToDiscussBtn() {
+    const allDone = STATE.revealed.every(Boolean);
+    $('toDiscuss').classList.toggle('hidden', !allDone);
+  }
+
+  // ========== 数字確認 overlay ==========
+  function openReveal(i) {
+    STATE.currentReveal = i;
+    $('revealName').textContent = `${i+1}人目`;
+    $('revealTopic').textContent = STATE.topic;
+    $('revealTopic2').textContent = STATE.topic;
+    $('revealWho').textContent = `${i+1}人目のあなた`;
+    $('revealNumber').textContent = '??';
+    $('revealPre').classList.remove('hidden');
+    $('revealMain').classList.add('hidden');
+    $('revealOverlay').classList.add('show');
+  }
+  function showNumber() {
+    $('revealNumber').textContent = STATE.numbers[STATE.currentReveal];
+    $('revealPre').classList.add('hidden');
+    $('revealMain').classList.remove('hidden');
+  }
+  function closeReveal() {
+    $('revealNumber').textContent = '??';
+    $('revealOverlay').classList.remove('show');
+    if (STATE.currentReveal >= 0) {
+      STATE.revealed[STATE.currentReveal] = true;
+      STATE.currentReveal = -1;
+      renderDealGrid();
+    }
+  }
+
+  // ========== ステップ切替 ==========
+  function showStep(name) {
+    ['setup','deal','discuss','result'].forEach(s => {
+      $('step-'+s).classList.toggle('hidden', s !== name);
+    });
+    if (name === 'discuss') {
+      $('discTopicText').textContent = STATE.topic;
+      resetTimer();
+    }
+    if (name === 'result') {
+      renderResult();
+    }
+    window.scrollTo({top:0, behavior:'smooth'});
+  }
+
+  // ========== 結果 ==========
+  function renderResult() {
+    const grid = $('resultGrid');
+    grid.innerHTML = '';
+    // プレイヤー番号と数字をペアにし、数字昇順にソート
+    const pairs = STATE.numbers.map((n,i) => ({n, i})).sort((a,b)=>a.n-b.n);
+    pairs.forEach(p => {
+      const card = document.createElement('div');
+      card.className = 'deal-card';
+      card.style.background = 'linear-gradient(135deg, #ff8a3d, #ffd43b)';
+      card.style.cursor = 'default';
+      card.innerHTML = `<div class="label" style="font-size:1.3rem;">${p.n}<small>${p.i+1}人目</small></div>`;
+      grid.appendChild(card);
+    });
+  }
+
+  // ========== タイマー ==========
+  function fmt(sec) {
+    const m = Math.floor(sec/60);
+    const s = sec%60;
+    return `${String(m).padStart(2,'0')}:${String(s).padStart(2,'0')}`;
+  }
+  function updateTimerDisplay() {
+    $('timerDisplay').textContent = fmt(STATE.timerRemaining);
+  }
+  function startTimer() {
+    if (STATE.timerRunning) return;
+    STATE.timerRunning = true;
+    $('timerStart').classList.add('hidden');
+    $('timerPause').classList.remove('hidden');
+    STATE.timerInterval = setInterval(() => {
+      STATE.timerRemaining--;
+      if (STATE.timerRemaining <= 0) {
+        STATE.timerRemaining = 0;
+        updateTimerDisplay();
+        pauseTimer();
+        playBeep();
+        showToast('⏰ 時間です！');
+        return;
+      }
+      updateTimerDisplay();
+    }, 1000);
+  }
+  function pauseTimer() {
+    STATE.timerRunning = false;
+    clearInterval(STATE.timerInterval);
+    $('timerStart').classList.remove('hidden');
+    $('timerPause').classList.add('hidden');
+  }
+  function resetTimer() {
+    pauseTimer();
+    STATE.timerRemaining = STATE.timerSec;
+    updateTimerDisplay();
+  }
+  function playBeep() {
+    try {
+      const ctx = new (window.AudioContext||window.webkitAudioContext)();
+      const o = ctx.createOscillator();
+      const g = ctx.createGain();
+      o.connect(g); g.connect(ctx.destination);
+      o.frequency.value = 880; o.type='sine';
+      g.gain.setValueAtTime(0.0001, ctx.currentTime);
+      g.gain.exponentialRampToValueAtTime(0.3, ctx.currentTime+0.05);
+      g.gain.exponentialRampToValueAtTime(0.0001, ctx.currentTime+0.9);
+      o.start(); o.stop(ctx.currentTime+0.95);
+    } catch(e){}
+  }
+
+  // ========== Event bindings ==========
+  $('inc').addEventListener('click', () => setPlayers(STATE.players+1));
+  $('dec').addEventListener('click', () => setPlayers(STATE.players-1));
+  $('rollTopic').addEventListener('click', rollTopic);
+  $('rerollTopic').addEventListener('click', rollTopic);
+  $('startGame').addEventListener('click', startGame);
+  $('toDiscuss').addEventListener('click', () => showStep('discuss'));
+  $('backToSetup').addEventListener('click', () => showStep('setup'));
+  $('toResult').addEventListener('click', () => { pauseTimer(); showStep('result'); });
+  $('newGame').addEventListener('click', () => { STATE.topic=''; $('topicText').textContent='ボタンを押してお題を引いてください'; $('rerollTopic').style.display='none'; $('rollTopic').textContent='🎲 お題を引く'; showStep('setup'); });
+  $('resultBack').addEventListener('click', () => showStep('setup'));
+  $('revealTapBtn').addEventListener('click', showNumber);
+  $('revealClose').addEventListener('click', closeReveal);
+
+  document.querySelectorAll('#timerPresets button').forEach(b => {
+    b.addEventListener('click', () => {
+      document.querySelectorAll('#timerPresets button').forEach(x => x.classList.remove('active'));
+      b.classList.add('active');
+      STATE.timerSec = +b.dataset.sec;
+      resetTimer();
+    });
+  });
+  $('timerStart').addEventListener('click', startTimer);
+  $('timerPause').addEventListener('click', pauseTimer);
+  $('timerReset').addEventListener('click', resetTimer);
+
+  // Init
+  renderCategories();
+  setPlayers(4);
+  updateTimerDisplay();
+</script>
+
+</body>
+</html>
