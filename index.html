@@ -1183,16 +1183,21 @@
     }
   }
   function flipResultCard(card, i) {
-    if (card.classList.contains('flipped') || STATE.flipFailed) return;
+    if (card.classList.contains('flipped')) return;
     const num = STATE.numbers[i];
+    const c = pColor(i);
+    // 失敗後は判定なし、ただ数字を表示するだけ
+    if (STATE.flipFailed) {
+      card.classList.add('flipped');
+      card.innerHTML = `<div class="num">${num}</div><small>${i+1}人目 ${c.emoji}${c.name}</small>`;
+      return;
+    }
     STATE.flipOrder++;
     const order = STATE.flipOrder;
-    // 未公開カードの中での最小値と一致していなければ失敗
     const remaining = STATE.numbers.filter((n,idx) => !document.querySelector(`#resultGrid .deal-card[data-idx="${idx}"]`).classList.contains('flipped'));
     const minRemaining = Math.min(...remaining);
     const isFail = num !== minRemaining;
     card.classList.add('flipped');
-    const c = pColor(i);
     card.innerHTML = `<div class="order-badge">${order}</div><div class="num">${num}</div><small>${i+1}人目 ${c.emoji}${c.name}</small>`;
     if (isFail) {
       card.classList.add('fail');
@@ -1220,19 +1225,6 @@
       banner.innerHTML = `💥 順番ミス！<small>${lastNum} より小さい ${expectedMin} がまだ残っていました…残念！</small>`;
       $('resultStatus').textContent = '失敗…残りのカードもめくって答えを確認しよう';
       try { playFail(); } catch(e){}
-      // 失敗後も残りのカードはタップでめくれるようにする
-      setTimeout(() => {
-        STATE.flipFailed = false;
-        document.querySelectorAll('#resultGrid .deal-card:not(.flipped)').forEach(c => {
-          c.addEventListener('click', () => {
-            if (c.classList.contains('flipped')) return;
-            const idx = +c.dataset.idx;
-            c.classList.add('flipped');
-            const col = pColor(idx);
-            c.innerHTML = `<div class="num">${STATE.numbers[idx]}</div><small>${idx+1}人目 ${col.emoji}${col.name}</small>`;
-          }, { once: true });
-        });
-      }, 800);
     }
   }
   function playSuccess() {
