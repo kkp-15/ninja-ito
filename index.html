@@ -1187,14 +1187,17 @@
     const num = STATE.numbers[i];
     STATE.flipOrder++;
     const order = STATE.flipOrder;
-    const isFail = num < STATE.flipMaxNum;
+    // 未公開カードの中での最小値と一致していなければ失敗
+    const remaining = STATE.numbers.filter((n,idx) => !document.querySelector(`#resultGrid .deal-card[data-idx="${idx}"]`).classList.contains('flipped'));
+    const minRemaining = Math.min(...remaining);
+    const isFail = num !== minRemaining;
     card.classList.add('flipped');
     const c = pColor(i);
     card.innerHTML = `<div class="order-badge">${order}</div><div class="num">${num}</div><small>${i+1}人目 ${c.emoji}${c.name}</small>`;
     if (isFail) {
       card.classList.add('fail');
       STATE.flipFailed = true;
-      showFinalBanner(false, num);
+      showFinalBanner(false, num, minRemaining);
     } else {
       STATE.flipMaxNum = num;
       if (STATE.flipOrder === STATE.players) {
@@ -1204,7 +1207,7 @@
       }
     }
   }
-  function showFinalBanner(ok, lastNum) {
+  function showFinalBanner(ok, lastNum, expectedMin) {
     const banner = $('resultBanner');
     banner.classList.remove('hidden');
     if (ok) {
@@ -1214,7 +1217,7 @@
       try { playSuccess(); } catch(e){}
     } else {
       banner.className = 'result-banner fail';
-      banner.innerHTML = `💥 順番が逆！<small>${lastNum} は前のカードより小さい数字でした…残念！</small>`;
+      banner.innerHTML = `💥 順番ミス！<small>${lastNum} より小さい ${expectedMin} がまだ残っていました…残念！</small>`;
       $('resultStatus').textContent = '失敗…残りのカードもめくって答えを確認しよう';
       try { playFail(); } catch(e){}
       // 失敗後も残りのカードはタップでめくれるようにする
