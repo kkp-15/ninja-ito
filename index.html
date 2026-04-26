@@ -582,7 +582,6 @@
     </div>
     <div class="topic-actions">
       <button class="btn-secondary" id="rollTopic">🎲 お題を引く</button>
-      <button class="btn-ghost" id="rerollTopic" style="display:none;">↻ 引き直し</button>
     </div>
 
     <div class="step-actions" style="margin-top:1.2rem;">
@@ -940,7 +939,6 @@
     do { pick = list[Math.floor(Math.random()*list.length)]; } while (pick === STATE.topic && list.length > 1);
     STATE.topic = pick;
     $('topicText').textContent = pick;
-    $('rerollTopic').style.display = '';
     $('rollTopic').textContent = '🎲 別のお題を引く';
   }
 
@@ -1104,12 +1102,11 @@
   $('inc').addEventListener('click', () => setPlayers(STATE.players+1));
   $('dec').addEventListener('click', () => setPlayers(STATE.players-1));
   $('rollTopic').addEventListener('click', rollTopic);
-  $('rerollTopic').addEventListener('click', rollTopic);
   $('startGame').addEventListener('click', startGame);
   $('toDiscuss').addEventListener('click', () => showStep('discuss'));
   $('backToSetup').addEventListener('click', () => showStep('setup'));
   $('toResult').addEventListener('click', () => { pauseTimer(); showStep('result'); });
-  $('newGame').addEventListener('click', () => { STATE.topic=''; $('topicText').textContent='ボタンを押してお題を引いてください'; $('rerollTopic').style.display='none'; $('rollTopic').textContent='🎲 お題を引く'; showStep('setup'); });
+  $('newGame').addEventListener('click', () => { STATE.topic=''; $('topicText').textContent='ボタンを押してお題を引いてください'; $('rollTopic').textContent='🎲 お題を引く'; showStep('setup'); });
   $('resultBack').addEventListener('click', () => showStep('setup'));
   $('revealTapBtn').addEventListener('click', showNumber);
   $('revealClose').addEventListener('click', closeReveal);
