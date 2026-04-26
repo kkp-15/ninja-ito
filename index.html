@@ -410,6 +410,25 @@
     border: 2px solid var(--border);
   }
   .end-cta p { font-size: 0.95rem; margin-bottom: 0.7rem; }
+  .shop-links {
+    display: flex;
+    gap: 0.5rem;
+    justify-content: center;
+    flex-wrap: wrap;
+    margin-top: 0.6rem;
+  }
+  .shop-btn {
+    display: inline-block;
+    padding: 0.7rem 1.2rem;
+    border-radius: 999px;
+    font-weight: bold;
+    text-decoration: none;
+    color: white;
+    font-size: 0.95rem;
+    box-shadow: 0 3px 0 rgba(0,0,0,0.15);
+  }
+  .shop-amazon { background: #ff9900; box-shadow: 0 3px 0 #cc7a00; }
+  .shop-rakuten { background: #bf0000; box-shadow: 0 3px 0 #8a0000; }
   .end-cta .ad-link {
     display: inline-block;
     color: var(--orange-dark);
@@ -717,7 +736,10 @@
     <div class="result-banner hidden" id="resultBanner"></div>
     <div class="end-cta">
       <p>🎉 楽しめましたか？<br><strong>本物の「ito（イト）」カードゲーム</strong>はもっとお題が豊富で盛り上がります！</p>
-      <a class="ad-link" id="amazonLink" href="https://www.amazon.co.jp/s?k=ito+%E3%82%A4%E3%83%88+%E3%82%AB%E3%83%BC%E3%83%89%E3%82%B2%E3%83%BC%E3%83%A0&tag=kkp15-22" target="_blank" rel="nofollow sponsored noopener">🛒 Amazonでitoを見る</a>
+      <div class="shop-links">
+        <a class="shop-btn shop-amazon" href="https://www.amazon.co.jp/s?k=ito+%E3%82%A4%E3%83%88+%E3%82%AB%E3%83%BC%E3%83%89%E3%82%B2%E3%83%BC%E3%83%A0&tag=kkp15-22" target="_blank" rel="nofollow sponsored noopener">🛒 Amazonで見る</a>
+        <a class="shop-btn shop-rakuten" href="https://hb.afl.rakuten.co.jp/hgc/11008fdf.72a391c0.11008fe0.307a7b09/?pc=https%3A%2F%2Fsearch.rakuten.co.jp%2Fsearch%2Fmall%2Fito%2B%E3%82%A4%E3%83%88%2B%E3%82%AB%E3%83%BC%E3%83%89%E3%82%B2%E3%83%BC%E3%83%A0%2F&m=https%3A%2F%2Fm.rakuten.co.jp%2F" target="_blank" rel="nofollow sponsored noopener">🛍 楽天で見る</a>
+      </div>
     </div>
     <div class="step-actions">
       <button class="btn-primary" id="newGame">🔄 もう1回遊ぶ</button>
@@ -824,7 +846,10 @@
     <div class="info-body">
       <p>このツールは「ito」を持っていない人向けの<strong>非公式の補助ツール</strong>です。本家のカードゲーム版にはもっと多彩なお題カードと、上級者向けルール（クモノイト・アカイイト）が収録されています。</p>
       <p>気に入った方はぜひ本物のカードゲーム版もチェックしてみてください👇</p>
-      <p><a href="https://www.amazon.co.jp/s?k=ito+%E3%82%A4%E3%83%88+%E3%82%AB%E3%83%BC%E3%83%89%E3%82%B2%E3%83%BC%E3%83%A0&tag=kkp15-22" target="_blank" rel="nofollow sponsored noopener">🛒 Amazonで「ito」を探す</a></p>
+      <div class="shop-links">
+        <a class="shop-btn shop-amazon" href="https://www.amazon.co.jp/s?k=ito+%E3%82%A4%E3%83%88+%E3%82%AB%E3%83%BC%E3%83%89%E3%82%B2%E3%83%BC%E3%83%A0&tag=kkp15-22" target="_blank" rel="nofollow sponsored noopener">🛒 Amazonで探す</a>
+        <a class="shop-btn shop-rakuten" href="https://hb.afl.rakuten.co.jp/hgc/11008fdf.72a391c0.11008fe0.307a7b09/?pc=https%3A%2F%2Fsearch.rakuten.co.jp%2Fsearch%2Fmall%2Fito%2B%E3%82%A4%E3%83%88%2B%E3%82%AB%E3%83%BC%E3%83%89%E3%82%B2%E3%83%BC%E3%83%A0%2F&m=https%3A%2F%2Fm.rakuten.co.jp%2F" target="_blank" rel="nofollow sponsored noopener">🛍 楽天で探す</a>
+      </div>
     </div>
   </details>
 
