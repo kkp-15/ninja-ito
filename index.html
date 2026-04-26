@@ -470,6 +470,34 @@
   .app-link b { display: block; font-size: 0.95rem; color: var(--orange-dark); }
   .app-link small { display: block; font-size: 0.75rem; color: var(--muted); margin-top: 0.1rem; }
 
+  /* Share */
+  .share-section { margin: 1.2rem 0 0.4rem; text-align: center; }
+  .share-title { font-size: 0.95rem; font-weight: 700; color: var(--orange-dark); margin-bottom: 0.6rem; }
+  .share-btns { display: flex; gap: 0.5rem; justify-content: center; flex-wrap: wrap; }
+  .share-btn {
+    padding: 0.6rem 1rem;
+    border: none;
+    border-radius: 12px;
+    font-size: 0.85rem;
+    font-weight: 700;
+    font-family: inherit;
+    cursor: pointer;
+    color: #fff;
+    flex: 1 1 calc(33% - 0.5rem);
+    min-width: 90px;
+    max-width: 160px;
+    box-shadow: 0 2px 0 rgba(0,0,0,0.15);
+  }
+  .share-btn:hover { opacity: 0.88; }
+  .x-btn { background: #000; }
+  .threads-btn { background: #000; border: 1px solid #555; }
+  .line-btn { background: #06C755; }
+  .fb-btn { background: #1877F2; }
+  .hatena-btn { background: #00A4DE; }
+  .instagram-btn { background: linear-gradient(135deg, #405DE6 0%, #833AB4 25%, #C13584 50%, #E1306C 75%, #FD1D1D 100%); }
+  .copy-btn { background: #555; }
+  .copy-btn.copied { background: #1a7a3c; }
+
   /* Result phase */
   .result-status {
     text-align: center;
@@ -738,6 +766,19 @@
     <div class="result-status" id="resultStatus">最小だと思う人のカードからめくろう 👇</div>
     <div class="deal-grid" id="resultGrid"></div>
     <div class="result-banner hidden" id="resultBanner"></div>
+    <div class="share-section">
+      <p class="share-title">📣 結果をシェアしよう</p>
+      <div class="share-btns">
+        <button class="share-btn x-btn" onclick="shareX()">𝕏</button>
+        <button class="share-btn threads-btn" onclick="shareThreads()">@ Threads</button>
+        <button class="share-btn line-btn" onclick="shareLINE()">LINE</button>
+        <button class="share-btn fb-btn" onclick="shareFB()">Facebook</button>
+        <button class="share-btn hatena-btn" onclick="shareHatena()">はてブ</button>
+        <button class="share-btn instagram-btn" onclick="shareInstagram()">📷 Instagram</button>
+        <button class="share-btn copy-btn" onclick="copyURL(this)">URLコピー</button>
+      </div>
+    </div>
+
     <div class="end-cta">
       <p>🎉 楽しめましたか？<br><strong>本物の「ito（イト）」カードゲーム</strong>はもっとお題が豊富で盛り上がります！</p>
       <div class="shop-links">
@@ -1330,6 +1371,57 @@
   $('timerStart').addEventListener('click', startTimer);
   $('timerPause').addEventListener('click', pauseTimer);
   $('timerReset').addEventListener('click', resetTimer);
+
+  // ========== シェア ==========
+  function getShareParts() {
+    const banner = $('resultBanner');
+    let resultLine = '';
+    if (!banner.classList.contains('hidden')) {
+      resultLine = banner.classList.contains('success') ? '🎉 全員勝利！ ' : '💥 順番ミス…！ ';
+    }
+    const topic = STATE.topic ? `お題「${STATE.topic}」で遊んだよ` : 'スマホ1台で遊べる協力ゲーム';
+    const text = `${resultLine}${topic}｜ito 数字配布ツール
+カード版なしでitoが遊べる無料ツール`;
+    const hashtags = ' #ito #ボードゲーム #パーティーゲーム';
+    const full = text + hashtags;
+    const url = location.href.split('#')[0];
+    return { text: full, url, encText: encodeURIComponent(full), encUrl: encodeURIComponent(url) };
+  }
+  window.shareX = () => { const s=getShareParts(); window.open(`https://twitter.com/intent/tweet?text=${s.encText}&url=${s.encUrl}`,'_blank'); };
+  window.shareThreads = () => { const s=getShareParts(); window.open(`https://threads.net/intent/post?text=${s.encText}%20${s.encUrl}`,'_blank'); };
+  window.shareLINE = () => { const s=getShareParts(); window.open(`https://social-plugins.line.me/lineit/share?url=${s.encUrl}&text=${s.encText}`,'_blank'); };
+  window.shareFB = () => { const s=getShareParts(); window.open(`https://www.facebook.com/sharer/sharer.php?u=${s.encUrl}`,'_blank'); };
+  window.shareHatena = () => { const s=getShareParts(); window.open('https://b.hatena.ne.jp/entry/s/'+s.url.replace(/^https?:\/\//,''),'_blank'); };
+  window.shareInstagram = () => {
+    const s = getShareParts();
+    if (navigator.share) { navigator.share({title:document.title,url:s.url,text:s.text}).catch(()=>{}); return; }
+    if (navigator.clipboard?.writeText) {
+      navigator.clipboard.writeText(s.text+' '+s.url).then(()=>{
+        alert('結果をコピーしました！\nInstagramアプリで貼り付けて共有してください。');
+        window.open('https://www.instagram.com/','_blank');
+      });
+    } else {
+      window.prompt('このテキストをコピーしてInstagramに貼り付けてください', s.text+' '+s.url);
+    }
+  };
+  window.copyURL = (btn) => {
+    const s = getShareParts();
+    const done = () => {
+      const o = btn.textContent;
+      btn.textContent = 'コピー済み';
+      btn.classList.add('copied');
+      setTimeout(()=>{ btn.textContent=o; btn.classList.remove('copied'); }, 2000);
+    };
+    if (navigator.clipboard?.writeText) {
+      navigator.clipboard.writeText(s.text+' '+s.url).then(done);
+    } else {
+      const ta = document.createElement('textarea');
+      ta.value = s.text+' '+s.url;
+      document.body.appendChild(ta); ta.select();
+      try { document.execCommand('copy'); done(); } catch(e){}
+      document.body.removeChild(ta);
+    }
+  };
 
   // Init
   renderCategories();
