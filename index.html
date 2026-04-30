@@ -27,7 +27,7 @@
   "applicationCategory": "GameApplication",
   "operatingSystem": "Web",
   "offers": {"@type":"Offer","price":"0","priceCurrency":"JPY"},
-  "author": {"@type":"Person","name":"こーきっぺ"}
+  "author": {"@type":"Person","name":"web忍者の砦"}
 }
 </script>
 
@@ -686,6 +686,7 @@
   <link rel="icon" type="image/png" sizes="32x32" href="/favicon.png">
   <link rel="icon" type="image/png" sizes="192x192" href="/favicon-192.png">
   <link rel="apple-touch-icon" sizes="180x180" href="/apple-touch-icon.png">
+  <link rel="stylesheet" href="https://kkpwebninja.com/shared/fortress-share.css">
 </head>
 <body>
 
@@ -772,18 +773,12 @@
     <div class="result-status" id="resultStatus">最小だと思う人のカードからめくろう 👇</div>
     <div class="deal-grid" id="resultGrid"></div>
     <div class="result-banner hidden" id="resultBanner"></div>
-    <div class="share-section">
-      <p class="share-title">📣 結果をシェアしよう</p>
-      <div class="share-btns">
-        <button class="share-btn x-btn" onclick="shareX()">𝕏</button>
-        <button class="share-btn threads-btn" onclick="shareThreads()">@ Threads</button>
-        <button class="share-btn line-btn" onclick="shareLINE()">LINE</button>
-        <button class="share-btn fb-btn" onclick="shareFB()">Facebook</button>
-        <button class="share-btn hatena-btn" onclick="shareHatena()">はてブ</button>
-        <button class="share-btn instagram-btn" onclick="shareInstagram()">📷 Instagram</button>
-        <button class="share-btn copy-btn" onclick="copyURL(this)">URLコピー</button>
-      </div>
-    </div>
+    <div data-fortress-share
+         data-site="ninja-ito"
+         data-trigger="result"
+         data-label="📣 結果をシェアしよう"
+         data-text-fn="getShareTextDynamic"
+         data-hashtags="#ito #ボードゲーム #パーティーゲーム"></div>
 
     <div class="end-cta">
       <p>🎉 楽しめましたか？<br><strong>本物の「ito（イト）」カードゲーム</strong>はもっとお題が豊富で盛り上がります！</p>
@@ -1378,55 +1373,15 @@
   $('timerPause').addEventListener('click', pauseTimer);
   $('timerReset').addEventListener('click', resetTimer);
 
-  // ========== シェア ==========
-  function getShareParts() {
+  // ========== シェア（fortress-share用 動的テキスト関数） ==========
+  window.getShareTextDynamic = function() {
     const banner = $('resultBanner');
     let resultLine = '';
-    if (!banner.classList.contains('hidden')) {
+    if (banner && !banner.classList.contains('hidden')) {
       resultLine = banner.classList.contains('success') ? '🎉 全員勝利！ ' : '💥 順番ミス…！ ';
     }
-    const topic = STATE.topic ? `お題「${STATE.topic}」で遊んだよ` : 'スマホ1台で遊べる協力ゲーム';
-    const text = `${resultLine}${topic}｜ito お題と数字配布ツール
-カード版なしでitoが遊べる無料ツール`;
-    const hashtags = ' #ito #ボードゲーム #パーティーゲーム';
-    const full = text + hashtags;
-    const url = location.href.split('#')[0];
-    return { text: full, url, encText: encodeURIComponent(full), encUrl: encodeURIComponent(url) };
-  }
-  window.shareX = () => { const s=getShareParts(); window.open(`https://twitter.com/intent/tweet?text=${s.encText}&url=${s.encUrl}`,'_blank'); };
-  window.shareThreads = () => { const s=getShareParts(); window.open(`https://threads.net/intent/post?text=${s.encText}%20${s.encUrl}`,'_blank'); };
-  window.shareLINE = () => { const s=getShareParts(); window.open(`https://social-plugins.line.me/lineit/share?url=${s.encUrl}&text=${s.encText}`,'_blank'); };
-  window.shareFB = () => { const s=getShareParts(); window.open(`https://www.facebook.com/sharer/sharer.php?u=${s.encUrl}`,'_blank'); };
-  window.shareHatena = () => { const s=getShareParts(); window.open('https://b.hatena.ne.jp/entry/s/'+s.url.replace(/^https?:\/\//,''),'_blank'); };
-  window.shareInstagram = () => {
-    const s = getShareParts();
-    if (navigator.share) { navigator.share({title:document.title,url:s.url,text:s.text}).catch(()=>{}); return; }
-    if (navigator.clipboard?.writeText) {
-      navigator.clipboard.writeText(s.text+' '+s.url).then(()=>{
-        alert('結果をコピーしました！\nInstagramアプリで貼り付けて共有してください。');
-        window.open('https://www.instagram.com/','_blank');
-      });
-    } else {
-      window.prompt('このテキストをコピーしてInstagramに貼り付けてください', s.text+' '+s.url);
-    }
-  };
-  window.copyURL = (btn) => {
-    const s = getShareParts();
-    const done = () => {
-      const o = btn.textContent;
-      btn.textContent = 'コピー済み';
-      btn.classList.add('copied');
-      setTimeout(()=>{ btn.textContent=o; btn.classList.remove('copied'); }, 2000);
-    };
-    if (navigator.clipboard?.writeText) {
-      navigator.clipboard.writeText(s.text+' '+s.url).then(done);
-    } else {
-      const ta = document.createElement('textarea');
-      ta.value = s.text+' '+s.url;
-      document.body.appendChild(ta); ta.select();
-      try { document.execCommand('copy'); done(); } catch(e){}
-      document.body.removeChild(ta);
-    }
+    const topic = (typeof STATE !== 'undefined' && STATE.topic) ? `お題「${STATE.topic}」で遊んだよ` : 'スマホ1台で遊べる協力ゲーム';
+    return `${resultLine}${topic}｜ito お題と数字配布ツール\nカード版なしでitoが遊べる無料ツール`;
   };
 
   // Init
@@ -1435,5 +1390,6 @@
   updateTimerDisplay();
 </script>
 
+<script src="https://kkpwebninja.com/shared/fortress-share.js" defer></script>
 </body>
 </html>
